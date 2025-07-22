@@ -2,6 +2,8 @@ import random
 import string
 import pytest
 import time
+import tempfile
+import shutil
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -12,7 +14,9 @@ from selenium.webdriver.support import expected_conditions as EC
 
 @pytest.fixture
 def browser():
+    temp_dir = tempfile.mkdtemp()  # создаём уникальный временный профиль
     options = Options()
+    options.add_argument(f"--user-data-dir={temp_dir}")  # явно указываем уникальный профиль
     options.add_argument("--headless=new")  # запуск без GUI
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
@@ -22,6 +26,7 @@ def browser():
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     yield driver
     driver.quit()
+    shutil.rmtree(temp_dir)  # удаляем временную папку после завершения теста
 
 def generate_random_email():
     name = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
