@@ -2,8 +2,6 @@ import random
 import string
 import pytest
 import time
-import tempfile
-import shutil
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -20,17 +18,10 @@ def browser():
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
     options.add_argument("--disable-extensions")
-    options.add_argument("--remote-debugging-port=9222")
-
-    user_data_dir = tempfile.mkdtemp(prefix="chrome-user-data-")
-    options.add_argument(f"--user-data-dir={user_data_dir}")
 
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    try:
-        yield driver
-    finally:
-        driver.quit()
-        shutil.rmtree(user_data_dir)
+    yield driver
+    driver.quit()
 
 def generate_random_email():
     name = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
