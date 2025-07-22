@@ -2,6 +2,8 @@ import random
 import string
 import pytest
 import time
+import tempfile
+import shutil
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -19,17 +21,20 @@ def browser():
     options.add_argument("--disable-gpu")
     options.add_argument("--disable-extensions")
     options.add_argument("--remote-debugging-port=9222")
-    options.add_argument("--user-data-dir=/tmp/unique-user-data-dir")  # уникальная папка для данных пользователя
+
+    # создаём уникальную временную папку для user-data-dir
+    user_data_dir = tempfile.mkdtemp(prefix="chrome-user-data-")
+    options.add_argument(f"--user-data-dir={user_data_dir}")
 
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     yield driver
-    driver.quit()
 
+    driver.quit()
+    shutil.rmtree(user_data_dir)  # удаляем папку после теста
 
 def generate_random_email():
     name = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
     return f"{name}@example.com"
-
 
 def test_registr_and_check_text(browser):
     # Шаг 1: логин
@@ -44,7 +49,7 @@ def test_registr_and_check_text(browser):
     page_text = browser.page_source
     assert expected_text.lower() in page_text.lower(), f"'{expected_text}' not found after login"
 
-    # Шаг 3: ожидание 10 секунд (например, чтобы пользователь мог посмотреть на страницу)
+    # Шаг 3: ожидание 10 секунд
     time.sleep(10)
 
     # Шаг 4: выход из аккаунта
