@@ -1,8 +1,8 @@
 import pytest
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
+import tempfile
+import os
 
 @pytest.fixture
 def browser():
@@ -11,12 +11,16 @@ def browser():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
-    options.add_argument("--disable-extensions")
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=options)
+
+    user_data_dir = tempfile.mkdtemp()
+    options.add_argument(f"--user-data-dir={user_data_dir}")
+
+    driver = webdriver.Chrome(options=options)
     yield driver
     driver.quit()
 
 def test_simple(browser):
-    browser.get("https://example.com")
-    assert "Example Domain" in browser.title
+    html = "data:text/html,<html><head><title>Hello</title></head><body>Test</body></html>"
+    browser.get(html)
+    assert "Hello" in browser.title
+
