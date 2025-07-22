@@ -22,15 +22,15 @@ def browser():
     options.add_argument("--disable-extensions")
     options.add_argument("--remote-debugging-port=9222")
 
-    # создаём уникальную временную папку для user-data-dir
     user_data_dir = tempfile.mkdtemp(prefix="chrome-user-data-")
     options.add_argument(f"--user-data-dir={user_data_dir}")
 
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    yield driver
-
-    driver.quit()
-    shutil.rmtree(user_data_dir)  # удаляем папку после теста
+    try:
+        yield driver
+    finally:
+        driver.quit()
+        shutil.rmtree(user_data_dir)
 
 def generate_random_email():
     name = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
