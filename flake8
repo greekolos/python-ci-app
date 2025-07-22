@@ -1,3 +1,12 @@
 [flake8]
-ignore = E266,E501,W292,W391,F401
 max-line-length = 120
+extend-ignore =
+    E265,  # block comment should start with '# '
+    E266,  # too many leading '#' for block comment
+    E302,  # expected 2 blank lines, found 1
+    E303,  # too many blank lines
+    E501,  # line too long
+    E722,  # do not use bare 'except'
+    W391,  # blank line at end of file
+    W292,  # no newline at end of file
+    F401,  # imported but unused
