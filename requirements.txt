@@ -1,2 +1,4 @@
-flake8
+selenium
+webdriver-manager
 pytest
+flake8
